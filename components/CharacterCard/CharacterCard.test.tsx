@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react"
 import { CharacterCard } from "."
 import { CharactersType } from "@/types"
-
+import userEvent from "@testing-library/user-event"
 const example1: CharactersType = {
 	id: 1,
 	name: "Rick Sanchez",
@@ -114,4 +114,21 @@ test("missing status matches logo", () => {
 		/>
 	)
 	expect(screen.getByTestId("missing-icon")).toBeInTheDocument()
+})
+
+test("calls setCharacter with the correct character when clicked", async () => {
+	const user = userEvent.setup()
+
+	render(
+		<CharacterCard
+			char={example1}
+			chosenCharacter={example2}
+			setCharacter={mockSetCharacter}
+		/>
+	)
+
+	const card = screen.getByTestId("character-card")
+	await user.click(card)
+
+	expect(mockSetCharacter).toHaveBeenCalledWith(example1)
 })
