@@ -25,11 +25,36 @@ export const CharacterCard = (props: CardProps) => {
 
   const renderIcon = () => {
     if (status === "Alive") {
-      return <FavoriteIcon fontSize="small" />;
+      return (
+			<FavoriteIcon
+				sx={{
+					color: chosenCharacter && chosenCharacter.id === id
+						? "black"
+						: "white"
+				}}
+				fontSize="small"
+        data-testid="alive-icon"
+			/>
+		)
     } else if (status === "Dead") {
-      return <HeartBrokenIcon fontSize="small" />;
+      return <HeartBrokenIcon sx={{
+        color: chosenCharacter && chosenCharacter.id === id
+          ? "black"
+          : "white"
+      }} fontSize="small" data-testid="dead-icon"/>;
     } else {
-      return <HelpIcon fontSize="small" />;
+      return (
+			<HelpIcon
+				sx={{
+					color:
+						chosenCharacter && chosenCharacter.id === id
+							? "black"
+							: "white",
+				}}
+				fontSize="small"
+				data-testid="missing-icon"
+			/>
+		)
     }
   };
   return (
