@@ -1,8 +1,7 @@
-import { render, screen } from "@testing-library/react"
+import { fireEvent, render, screen } from "@testing-library/react"
 import { CharacterList } from "."
 import { CharactersType } from "@/types"
 import RandMContext from "@/context/RandMContext"
-
 
 const example1: CharactersType = {
 	id: 1,
@@ -29,37 +28,37 @@ const example1: CharactersType = {
 }
 
 const mockCharacter: CharactersType = {
-    id: 1,
-    name: "Mock Character",
-    status: "Alive",
-    species: "Human",
-    type: "",
-    gender: "Male",
-    origin: { name: "Earth", url: "" },
-    location: { name: "Earth", url: "" },
-    image: "https://example.com/image.jpg",
-    episode: [],
-    url: "",
-    created: "2020-01-01",
-  }
-  
-  const mockContextValue = {
-    character1: mockCharacter,
-    character2: null,
-    setCharacter1: jest.fn(),
-    setCharacter2: jest.fn(),
-    charactersList1: [mockCharacter],
-    charactersList2: [],
-    setCharactersList1: jest.fn(),
-    setCharactersList2: jest.fn(),
-    episodes: [],
-    setEpisodes: jest.fn(),
-    pages: 1,
-    loader1: true,
-    setLoader1: jest.fn(),
-    loader2: false,
-    setLoader2: jest.fn(),
-  }
+	id: 1,
+	name: "Mock Character",
+	status: "Alive",
+	species: "Human",
+	type: "",
+	gender: "Male",
+	origin: { name: "Earth", url: "" },
+	location: { name: "Earth", url: "" },
+	image: "https://example.com/image.jpg",
+	episode: [],
+	url: "",
+	created: "2020-01-01",
+}
+
+const mockContextValue = {
+	character1: mockCharacter,
+	character2: null,
+	setCharacter1: jest.fn(),
+	setCharacter2: jest.fn(),
+	charactersList1: [mockCharacter],
+	charactersList2: [],
+	setCharactersList1: jest.fn(),
+	setCharactersList2: jest.fn(),
+	episodes: [],
+	setEpisodes: jest.fn(),
+	pages: 10,
+	loader1: true,
+	setLoader1: jest.fn(),
+	loader2: false,
+	setLoader2: jest.fn(),
+}
 
 const exampleList = [
 	{
@@ -131,7 +130,7 @@ const exampleList = [
 ]
 
 test("check if loader renders when needed", () => {
-    const mockSetCharacter = jest.fn()
+	const mockSetCharacter = jest.fn()
 	render(
 		<RandMContext.Provider value={mockContextValue}>
 			<CharacterList
@@ -144,6 +143,43 @@ test("check if loader renders when needed", () => {
 			/>
 		</RandMContext.Provider>
 	)
-	expect(screen.getByText("Loading...")).toBeInTheDocument();
-	expect(screen.getByTestId("circular-loader")).toBeInTheDocument();
+	expect(screen.getByText("Loading...")).toBeInTheDocument()
+	expect(screen.getByTestId("circular-loader")).toBeInTheDocument()
+})
+
+describe("CharacterList pagination", () => {
+	beforeEach(() => {
+		global.fetch = jest.fn().mockResolvedValue({
+			ok: true,
+			json: () => Promise.resolve({ results: [] }),
+		})
+	})
+
+	afterEach(() => {
+		jest.resetAllMocks()
+	})
+
+	it("calls fetch with the correct URL when paginating", async () => {
+		const mockSetCharacters = jest.fn()
+		const mockSetCharacter = jest.fn()
+		const mockSetLoader = jest.fn()
+
+		render(
+			<RandMContext.Provider value={mockContextValue}>
+				<CharacterList
+					characters={[]}
+					setCharacters={mockSetCharacters}
+					setCharacter={mockSetCharacter}
+					chosenCharacter={null}
+					loader={false}
+					setLoader={mockSetLoader}
+				/>
+			</RandMContext.Provider>
+		)
+
+		const page2Button = await screen.findByText("2")
+		fireEvent.click(page2Button)
+
+		expect(global.fetch).toHaveBeenCalledWith("api/page?number=2")
+	})
 })

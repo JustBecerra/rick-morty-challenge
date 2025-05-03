@@ -70,6 +70,7 @@ export const CharacterList = (props: CharactersProps) => {
 					shape="rounded"
 					color="primary"
 					size="small"
+					data-testid="pagination"
 					onChange={handlePagination}
 				/>
 			</div>
